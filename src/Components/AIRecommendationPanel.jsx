@@ -1,42 +1,76 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  buildPromptPayload,
+  streamAnthropicMessages,
+} from "../api/claudeStream";
 
-const MOCK_STREAM =
-  "Summary: This stop shows elevated demand pressure relative to scheduled frequency in the selected period. " +
-  "Consider validating crowding complaints with APC or faregate data, then evaluate a short tripper before the peak " +
-  "if the gap persists across multiple weekdays. Coordinate with rail connections if this is a transfer-heavy location.";
-
-/**
- * UI shell for an AI recommendation. Browser builds cannot call Anthropic directly (API key);
- * wire a small backend or serverless function later and replace the mock stream.
- */
-export default function AIRecommendationPanel({ stopName, gapScore, timePeriodLabel, tripsPerHour }) {
+export default function AIRecommendationPanel({
+  stopId,
+  stopName,
+  routes,
+  frequency,
+  selectedPeriodLabel,
+  poiList,
+  isInterchange,
+  gapScore,
+}) {
   const [text, setText] = useState("");
   const [done, setDone] = useState(false);
+  const [error, setError] = useState(null);
+
+  const payload = useMemo(
+    () =>
+      buildPromptPayload({
+        stop_name: stopName,
+        stop_id: stopId,
+        routes,
+        frequency,
+        selected_period_label: selectedPeriodLabel,
+        poi_list: poiList,
+        is_interchange: isInterchange,
+        gap_score: gapScore,
+      }),
+    [
+      stopName,
+      stopId,
+      routes,
+      frequency,
+      selectedPeriodLabel,
+      poiList,
+      isInterchange,
+      gapScore,
+    ]
+  );
 
   useEffect(() => {
     setText("");
     setDone(false);
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setText(MOCK_STREAM.slice(0, i));
-      if (i >= MOCK_STREAM.length) {
-        clearInterval(id);
-        setDone(true);
-      }
-    }, 12);
-    return () => clearInterval(id);
-  }, [stopName]);
+    setError(null);
+    const ac = new AbortController();
 
-  const exportSummary = [
-    `Stop: ${stopName}`,
-    `Period: ${timePeriodLabel}`,
-    `Trips/hr (selected): ${tripsPerHour}`,
-    `Gap score: ${gapScore}`,
-    "",
-    "Recommendation:",
-    text || MOCK_STREAM,
-  ].join("\n");
+    streamAnthropicMessages(payload, {
+      signal: ac.signal,
+      onDelta: (chunk) => setText((prev) => prev + chunk),
+      onError: (msg) => {
+        setError(msg);
+        setDone(true);
+      },
+      onDone: () => setDone(true),
+    });
+
+    return () => ac.abort();
+  }, [payload]);
+
+  const exportSummary = useMemo(() => {
+    const head = [
+      `Stop: ${stopName} (${stopId})`,
+      `Period: ${selectedPeriodLabel}`,
+      `Gap score: ${gapScore}`,
+      "",
+    ];
+    if (error) return [...head, `Error: ${error}`].join("\n");
+    return [...head, "Recommendation:", text || "(empty)"].join("\n");
+  }, [stopName, stopId, selectedPeriodLabel, gapScore, text, error]);
 
   const copyExport = async () => {
     try {
@@ -53,22 +87,27 @@ export default function AIRecommendationPanel({ stopName, gapScore, timePeriodLa
         <button
           type="button"
           className="btn btn-sm btn-outline-light"
-          disabled={!done}
+          disabled={!text && !error}
           onClick={copyExport}
         >
           Export
         </button>
       </div>
       <p className="small text-white-50 mb-2">
-        Demo: simulated streaming. Production: call Claude via a backend proxy.
+        Streaming via dev proxy (key in <code className="text-secondary">.env.local</code>
+        , not shipped to the browser). Static production builds need a backend route.
       </p>
-      <div
-        className="small"
-        style={{ whiteSpace: "pre-wrap", lineHeight: 1.45, minHeight: "4rem" }}
-      >
-        {text}
-        {!done && <span className="opacity-50">▍</span>}
-      </div>
+      {error ? (
+        <div className="small text-warning">{error}</div>
+      ) : (
+        <div
+          className="small"
+          style={{ whiteSpace: "pre-wrap", lineHeight: 1.45, minHeight: "4rem" }}
+        >
+          {text}
+          {!done && !error && <span className="opacity-50">▍</span>}
+        </div>
+      )}
     </div>
   );
 }

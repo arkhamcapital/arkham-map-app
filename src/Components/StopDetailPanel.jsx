@@ -47,6 +47,13 @@ export default function StopDetailPanel({ feature, timePeriod, onClose }) {
     [poiCount, interchange, tph]
   );
 
+  const poiListForPrompt = useMemo(() => {
+    if (poiLoading) return "Loading…";
+    if (poiError) return `Unavailable (${poiError})`;
+    if (poiCount === null) return "—";
+    return `${poiCount} OSM features (hospitals, schools, colleges, malls) within 400m`;
+  }, [poiLoading, poiError, poiCount]);
+
   useEffect(() => {
     setShowAi(false);
     setPoiCount(null);
@@ -180,10 +187,14 @@ export default function StopDetailPanel({ feature, timePeriod, onClose }) {
           </button>
         ) : (
           <AIRecommendationPanel
+            stopId={props.stop_id}
             stopName={props.stop_name}
+            routes={props.routes}
+            frequency={freq}
+            selectedPeriodLabel={labelForKey(timePeriod)}
+            poiList={poiListForPrompt}
+            isInterchange={interchange}
             gapScore={Math.round(metrics.gap_score)}
-            timePeriodLabel={labelForKey(timePeriod)}
-            tripsPerHour={tph}
           />
         )}
       </div>
