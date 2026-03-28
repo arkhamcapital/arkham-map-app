@@ -9,7 +9,7 @@ const Navigation = () => {
     // navbar styles
     <div>
       <Navbar className="py-2" color="dark" dark fixed="top">
-        {/* links to the map when 'torontoParks' is click */}
+        {/* brand links home */}
         <NavbarBrand href="/">
           {/* logo styles */}
           <img
@@ -21,7 +21,7 @@ const Navigation = () => {
             }}
             className="mx-2"
           />
-          <b>menu explorer</b>
+          <b>TTC Wait Times</b>
         </NavbarBrand>
         <div>
           {/* React router link to the about page */}

@@ -15,7 +15,7 @@ const Footer = () => {
             <div className="navbar-fixed-bottom">
                 <footer className="text-center text-lg-start">
                     <div className="text-center px-5 pb-5 bg-dark text-white">
-                        <p>menu explorer | built with 🧰 by @abrarmurad416</p>
+                        <p>TTC Wait Times | built with 🧰 by @abrarmurad416</p>
                     </div>
                 </footer>
             </div>

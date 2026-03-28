@@ -4,27 +4,27 @@ import '../index.css';
 const Hero = () => {
     return (
         <div className="text-center custom-padding">
-            <strong><h1><b>menu explorer</b></h1></strong>
+            <strong><h1><b>TTC Wait Times</b></h1></strong>
             <div className="container">
-                <p className="text-center mx-5 py-2">A collection of multiple restaurants I've been to and my opinions on them.</p>
+                <p className="text-center mx-5 py-2">Upload a zip file of TTC wait-time data to explore delays and patterns across the network.</p>
                 <div className="row justify-content-center align-items-center">
                     <div className="col-12 col-sm-6 col-md-4 col-lg-3 bg-warning bg-opacity-10 border border-danger rounded p-3 m-2 colheight">
                         <div className='pb-2'>
-                            <i class="bi bi-geo-alt h1"></i>
+                            <i class="bi bi-file-zip h1"></i>
                         </div>
-                        <p>Click on the location pin scattered through the map to learn more about each restaurant, the button links to the modal.</p>
+                        <p>Provide your dataset as a zip archive; the app will unpack and parse the files you need for analysis.</p>
+                    </div>
+                    <div className="col-12 col-sm-6 col-md-4 col-lg-3 bg-warning bg-opacity-10 border border-danger rounded p-3 m-2 colheight">
+                        <div className='pb-2'>
+                            <i class="bi bi-clock-history h1"></i>
+                        </div>
+                        <p>Review wait times by route, stop, or time of day once your data is loaded.</p>
                     </div>
                     <div className="col-12 col-sm-6 col-md-4 col-lg-3 bg-warning bg-opacity-10 border border-danger rounded p-3 m-2 colheight">
                         <div className='pb-2'>
                             <i class="bi bi-map h1"></i>
                         </div>
-                        <p>Customize the map to your choice with three different styles. Furthermore, use the zoom feature to focus or capture a wider area.</p>
-                    </div>
-                    <div className="col-12 col-sm-6 col-md-4 col-lg-3 bg-warning bg-opacity-10 border border-danger rounded p-3 m-2 colheight">
-                        <div className='pb-2'>
-                            <i class="bi bi-layout-text-window h1"></i>
-                        </div>
-                        <p>Access the modal to find out information regarding the shop, including a description, served dishes, and specialities section. Access the external link that leads to the official website of the restaurant.</p>
+                        <p>Use the map to see where waits concentrate and how they relate to the rest of the system.</p>
                     </div>
                 </div>
             </div>

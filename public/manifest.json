@@ -1,6 +1,6 @@
 {
-  "short_name": "torontoParks",
-  "name": "torontoPark",
+  "short_name": "TTC Waits",
+  "name": "TTC Wait Times",
   "icons": [
     {
       "src": "favicon.ico",
