@@ -2,7 +2,8 @@
  * GTFS → stops_with_frequency.geojson
  * Reads GTFS .txt from: data/gtfs/, a subfolder of data/gtfs/, or a folder next to package.json
  * (e.g. f-dpz8-ttc-latest/ — common when unzipping beside src/ instead of under data/gtfs/).
- * counts weekday trip arrivals per time bucket per stop,
+ * counts weekday trip arrivals per time bucket per stop.
+ * Only routes with route_type = 1 (GTFS subway/metro) are included — no bus/streetcar/LRT.
  * writes GeoJSON to public/data/stops_with_frequency.geojson
  *
  * Usage: node scripts/process_gtfs.js
@@ -203,6 +204,8 @@ function main() {
 
   const routesRows = readGtfsCsv(gtfsDir, "routes.txt");
   const routeById = new Map();
+  /** GTFS route_type 1 = Subway/Metro — TTC heavy rail (Lines 1–4); excludes bus (3), streetcar/LRT (0), etc. */
+  const allowedRouteIds = new Set();
   for (const r of routesRows) {
     const id = String(r.route_id ?? "").trim();
     if (!id) continue;
@@ -211,7 +214,18 @@ function main() {
       route_short_name: r.route_short_name ?? "",
       route_long_name: r.route_long_name ?? "",
     });
+    if (String(r.route_type ?? "").trim() === "1") {
+      allowedRouteIds.add(id);
+    }
   }
+  if (allowedRouteIds.size === 0) {
+    throw new Error(
+      "No routes with route_type=1 in routes.txt (GTFS subway/metro)."
+    );
+  }
+  console.log(
+    `Subway-only filter: ${allowedRouteIds.size} routes (route_type=1)`
+  );
 
   const tripsRows = readGtfsCsv(gtfsDir, "trips.txt");
   /** trip_id -> { route_id, service_id } */
@@ -221,6 +235,7 @@ function main() {
     const sid = String(t.service_id ?? "").trim();
     const rid = String(t.route_id ?? "").trim();
     if (!tid || !weekdayServiceIds.has(sid)) continue;
+    if (!allowedRouteIds.has(rid)) continue;
     tripMeta.set(tid, { route_id: rid, service_id: sid });
   }
 
@@ -278,6 +293,7 @@ function main() {
 
   const features = [];
   for (const [stopId, info] of stopById) {
+    if (!counts.has(stopId)) continue;
     const c = counts.get(stopId);
     const freq = {};
     for (const b of BUCKETS) {

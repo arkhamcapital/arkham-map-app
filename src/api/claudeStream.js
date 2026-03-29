@@ -1,4 +1,4 @@
-/** Anthropic Messages API — streaming via dev proxy (see src/setupProxy.js). */
+/** Anthropic Messages API — streaming via POST /api/claude/messages (CRA proxies to scripts/anthropic-proxy.js). */
 
 export const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
