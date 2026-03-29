@@ -4,7 +4,7 @@ import '../index.css';
 const Hero = () => {
     return (
         <div className="text-center custom-padding">
-            <strong><h1><b>TTC Wait Times</b></h1></strong>
+            <strong><h1><b>TTC Service Analyzer</b></h1></strong>
             <div className="container">
                 <p className="text-center mx-5 py-2">Upload a zip file of TTC wait-time data to explore delays and patterns across the network.</p>
                 <div className="row justify-content-center align-items-center">

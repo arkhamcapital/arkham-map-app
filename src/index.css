@@ -44,3 +44,13 @@ code {
 .layer {
   background-image: url(./Components/svgpattern.svg);
 }
+
+/* Footer links on dark background */
+footer.about-footer a,
+footer.about-footer a:visited {
+  color: #fff !important;
+}
+footer.about-footer a:hover {
+  color: #f8f9fa !important;
+  text-decoration: underline;
+}

@@ -13,9 +13,19 @@ const Footer = () => {
             </svg>
             {/* fixed footer */}
             <div className="navbar-fixed-bottom">
-                <footer className="text-center text-lg-start">
+                <footer className="text-center text-lg-start about-footer">
                     <div className="text-center px-5 pb-5 bg-dark text-white">
-                        <p>TTC Wait Times | built with 🧰 by @abrarmurad416</p>
+                        <p className="mb-2">TTC Service Gap Analyzer</p>
+                        <p className="mb-2">
+                            <a href="https://arkhamsystems.vercel.app/" target="_blank" rel="noreferrer">
+                                Arkham Systems
+                            </a>
+                        </p>
+                        <p className="mb-0">
+                            <a href="https://x.com/rarascode" target="_blank" rel="noreferrer">
+                                rarascode
+                            </a>
+                        </p>
                     </div>
                 </footer>
             </div>

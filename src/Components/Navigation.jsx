@@ -21,16 +21,10 @@ const Navigation = () => {
             }}
             className="mx-2"
           />
-          <b>TTC Wait Times</b>
+          <b>TTC Service Analyzer</b>
         </NavbarBrand>
         <div>
-          {/* React router link to the about page */}
-          <Button color="danger" tag={Link} to="/about">About</Button>{" "}
-          {/* external link to blog */}
-          {/* noreferrer adds extra security so the linked page does not know which site you came from */}
-          <a href="https://a8d.vercel.app/" target="_blank" rel="noreferrer">
-            <Button color="warning">Blog</Button>
-          </a>
+          <Button color="danger" tag={Link} to="/about">About</Button>{" "}        
         </div>
       </Navbar>
     </div>
