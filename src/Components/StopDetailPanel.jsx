@@ -162,20 +162,29 @@ export default function StopDetailPanel({ feature, timePeriod, onClose }) {
           </ul>
         </section>
 
-        <section className="mb-3 p-3 rounded bg-black bg-opacity-25 border border-secondary">
-          <h3 className="h6 text-secondary">Gap score (0–100)</h3>
+        {/* <section className="mb-3 p-3 rounded bg-black bg-opacity-25 border border-secondary"> */}
+          {/* <h3 className="h6 text-secondary">Gap score (0–100)</h3>
+          <p className="small text-white-50 mb-2">
+            Both demand and supply are scored 0–100, then gap = how much demand exceeds
+            scheduled service (floored at zero). Higher values suggest prioritizing a
+            closer look.
+          </p>
           <div className="display-6 mb-1">{Math.round(metrics.gap_score)}</div>
           <div className="small text-white-50">
-            Demand {Math.round(metrics.demand_score)} vs supply index{" "}
+            Demand index {Math.round(metrics.demand_score)} · Supply index{" "}
             {Math.round(metrics.supply_score)}
-          </div>
-          <div className="progress mt-2" style={{ height: 8 }}>
+            <span className="d-block mt-1 opacity-75">
+              Supply compares trips/hr in this period to a ceiling of{" "}
+              {metrics.supply_tph_ceiling ?? 16}/hr for scoring.
+            </span>
+          </div> */}
+          {/* <div className="progress mt-2" style={{ height: 8 }}>
             <div
               className="progress-bar bg-warning"
               style={{ width: `${metrics.gap_score}%` }}
             />
-          </div>
-        </section>
+          </div> */}
+        {/* </section> */}
 
         {!showAi ? (
           <button

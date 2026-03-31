@@ -52,8 +52,8 @@ const About = () => {
             <li className="mb-2">
               <strong>Open a stop</strong> to see routes, a frequency bar chart, light
               demand context (e.g. major interchange flag, nearby POIs from
-              OpenStreetMap), and a gap score that encodes “pressure vs scheduled
-              service” in a simple 0–100 style index.
+              OpenStreetMap), and a gap score derived from matching 0–100 demand and
+              supply indices (shortfall when demand exceeds scheduled service).
             </li>
             <li className="mb-0">
               <strong>Analyze with AI</strong> (optional) to get a concise narrative and

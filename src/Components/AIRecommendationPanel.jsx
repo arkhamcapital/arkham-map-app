@@ -93,12 +93,6 @@ export default function AIRecommendationPanel({
           Export
         </button>
       </div>
-      <p className="small text-white-50 mb-2">
-        Streaming via <code className="text-secondary">scripts/anthropic-proxy.js</code> on
-        port 3001 (key in <code className="text-secondary">.env.local</code>). Run{" "}
-        <code className="text-secondary">npm start</code> so the proxy and app start together.
-        Production static hosting still needs a backend route.
-      </p>
       {error ? (
         <div className="small text-warning">{error}</div>
       ) : (
