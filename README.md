@@ -62,7 +62,19 @@ There is no separate “frontend-only” script in `package.json`; AI is optiona
 npm run build
 ```
 
-Static files land in `build/`. The Anthropic proxy **does not** run in production—you need a **hosted API route** (e.g. serverless function) that mirrors `scripts/anthropic-proxy.js` if you want AI in production.
+Static files land in `build/`.
+
+### Deploying on Vercel (AI on production)
+
+Locally, `scripts/anthropic-proxy.js` handles `POST /api/claude/messages`. **Vercel has no dev proxy**, so the repo includes **`api/claude/messages.js`** — a serverless function that forwards to Anthropic the same way.
+
+1. In the Vercel project → **Settings → Environment Variables**, add **`ANTHROPIC_API_KEY`** (same value as `.env.local`).
+2. Redeploy after adding `api/` or changing env vars.
+3. **`vercel.json`** rewrites non-API paths to `index.html` for the SPA; `/api/*` is handled by the function first.
+
+If you see **HTTP 405** on AI in production, it usually means the **API route was missing** (POST hit static hosting) or the method wasn’t `POST`. With `api/claude/messages.js` deployed, POST should return **200** (or an error JSON from Anthropic), not 405.
+
+**Note:** Hobby tier has short function timeouts; long AI streams may need **Pro** or a higher `maxDuration` (see `vercel.json`).
 
 ## Project layout (high level)
 
