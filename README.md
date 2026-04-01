@@ -35,23 +35,6 @@ A React + Leaflet prototype for **exploring scheduled transit service at the sto
 
 The processor currently **restricts to GTFS `route_type = 1`** (subway/metro in the standard). Buses, streetcars, and LRT (other `route_type` values) are excluded unless you change `scripts/process_gtfs.js`.
 
-## Running the app
-
-### Development (map + AI)
-
-`npm start` runs **two** processes:
-
-1. **`scripts/anthropic-proxy.js`** — listens on port **3001** and forwards `POST /api/claude/messages` to Anthropic (keeps the API key off the browser).
-2. **`react-scripts start`** — dev server on port **3000**, with `package.json` **`proxy`** set to `http://127.0.0.1:3001`.
-
-Create **`mapapp/.env.local`** (gitignored):
-
-```env
-ANTHROPIC_API_KEY=sk-ant-api03-...
-```
-
-Never commit real keys.
-
 ### Without AI
 
 There is no separate “frontend-only” script in `package.json`; AI is optional at runtime (you can ignore the panel). To avoid starting the proxy, you could run `react-scripts start` directly, but then **Analyze with AI** will fail unless you add another backend.
