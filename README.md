@@ -1,70 +1,98 @@
-# Getting Started with Create React App
+# TTC Service Gap Analyzer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React + Leaflet prototype for **exploring scheduled transit service at the stop level** using **static GTFS** (the agency’s published timetable). It’s aimed at planners and schedulers who want a **fast first pass** before diving into spreadsheets, real-time feeds, or crowding data.
 
-## Available Scripts
+## What it does (in plain terms)
 
-In the project directory, you can run:
+1. **Turns GTFS into a map**  
+   A Node script reads the feed and builds `public/data/stops_with_frequency.geojson`: each stop includes **scheduled trips per hour** in time buckets (early morning, AM peak, midday, PM peak, evening, night) for **weekday** service.
 
-### `npm start`
+2. **Map**  
+   Stops appear as circle markers. **Color** reflects trips/hour in the **currently selected** time period (green = more scheduled service, red = less—see the on-map legend).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+3. **Stop detail panel**  
+   Click a stop to see **name/ID**, **routes** that serve it, a **bar chart** of trips/hour across all buckets, and optional **demand hints** (e.g. major-interchange flag, nearby POIs from OpenStreetMap via Overpass).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+4. **Analyze with AI** (optional)  
+   Sends that context to **Anthropic Claude** (streaming) for a short, plain-language note and a **recommended next step** (e.g. monitor, tripper, frequency review). The AI interprets the **same numbers you see**—it does not replace official data systems.
 
-### `npm test`
+## What it is *not*
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Not real-time.** There is no live vehicle tracking or delay data unless you add GTFS-RT or similar later.
+- **Not crowding.** Scheduled frequency ≠ how full vehicles are; you’d need APC or other ridership sources for that.
+- **Not an agency decision system.** Treat outputs as **decision support / demo** quality unless you harden data, validation, and deployment.
 
-### `npm run build`
+## Data pipeline (GTFS → GeoJSON)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Place a TTC (or other) static GTFS extract where the script can find it—either under `data/gtfs/`, a subfolder of that, or a folder next to `package.json` (e.g. `f-dpz8-ttc-latest/`).
+2. Run:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+   ```bash
+   npm run process-gtfs
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Output: `public/data/stops_with_frequency.geojson`.
 
-### `npm run eject`
+The processor currently **restricts to GTFS `route_type = 1`** (subway/metro in the standard). Buses, streetcars, and LRT (other `route_type` values) are excluded unless you change `scripts/process_gtfs.js`.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Running the app
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Development (map + AI)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+`npm start` runs **two** processes:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. **`scripts/anthropic-proxy.js`** — listens on port **3001** and forwards `POST /api/claude/messages` to Anthropic (keeps the API key off the browser).
+2. **`react-scripts start`** — dev server on port **3000**, with `package.json` **`proxy`** set to `http://127.0.0.1:3001`.
 
-## Learn More
+Create **`mapapp/.env.local`** (gitignored):
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```env
+ANTHROPIC_API_KEY=sk-ant-api03-...
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Never commit real keys.
 
-### Code Splitting
+### Without AI
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+There is no separate “frontend-only” script in `package.json`; AI is optional at runtime (you can ignore the panel). To avoid starting the proxy, you could run `react-scripts start` directly, but then **Analyze with AI** will fail unless you add another backend.
 
-### Analyzing the Bundle Size
+### Production build
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+npm run build
+```
 
-### Making a Progressive Web App
+Static files land in `build/`. The Anthropic proxy **does not** run in production—you need a **hosted API route** (e.g. serverless function) that mirrors `scripts/anthropic-proxy.js` if you want AI in production.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Project layout (high level)
 
-### Advanced Configuration
+| Path | Role |
+|------|------|
+| `scripts/process_gtfs.js` | GTFS → `stops_with_frequency.geojson` |
+| `scripts/anthropic-proxy.js` | Dev-only Claude proxy |
+| `public/data/stops_with_frequency.geojson` | Generated stop features (run `process-gtfs`) |
+| `src/Components/MapView.jsx` | Leaflet map + GeoJSON stops |
+| `src/Components/TimePeriodSelector.jsx` | Time bucket toggle |
+| `src/Components/StopDetailPanel.jsx` | Sidebar for selected stop |
+| `src/Components/AIRecommendationPanel.jsx` | Streaming AI + export |
+| `src/api/claudeStream.js` | Prompt shape + SSE client |
+| `src/Pages/About.jsx` | Product / use-case copy |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Scripts reference
 
-### Deployment
+| Command | Description |
+|---------|-------------|
+| `npm start` | Proxy (3001) + CRA dev server (3000) |
+| `npm run build` | Production bundle |
+| `npm run process-gtfs` | Regenerate GeoJSON from GTFS |
+| `npm test` | CRA test runner |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Tech stack
 
-### `npm run build` fails to minify
+- React (Create React App), React Router, React Leaflet, Bootstrap / Reactstrap, Recharts  
+- Node + `csv-parse` for GTFS preprocessing  
+- Anthropic Messages API (streaming) behind dev proxy  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+Bootstrapped with [Create React App](https://github.com/facebook/create-react-app). For generic CRA topics (eject, deployment, troubleshooting), see the [CRA documentation](https://facebook.github.io/create-react-app/docs/getting-started).
